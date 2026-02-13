@@ -14,9 +14,11 @@ from .const import (
     CONF_API_KEY,
     CONF_API_MODEL,
     CONF_INFERENCE_MODE,
+    CONF_PASSWORD,
     CONF_RTSP_URL,
     CONF_SCAN_INTERVAL,
     CONF_STATES,
+    CONF_USERNAME,
     DEFAULT_API_MODEL,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STATES,
@@ -65,6 +67,8 @@ class VideoStatusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             {
                 vol.Required(CONF_NAME): str,
                 vol.Required(CONF_RTSP_URL): str,
+                vol.Optional(CONF_USERNAME): str,
+                vol.Optional(CONF_PASSWORD): str,
                 vol.Required(
                     CONF_INFERENCE_MODE, default=INFERENCE_LOCAL
                 ): vol.In(

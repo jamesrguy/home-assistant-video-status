@@ -7,12 +7,16 @@
                 "data": {
                     "name": "Name",
                     "rtsp_url": "RTSP Stream URL",
+                    "username": "Username",
+                    "password": "Password",
                     "inference_mode": "Inference Mode",
                     "states": "States (comma-separated)",
                     "scan_interval": "Scan Interval (seconds)"
                 },
                 "data_description": {
-                    "rtsp_url": "Full RTSP URL of the camera stream, e.g. rtsp://192.168.1.100:554/stream",
+                    "rtsp_url": "RTSP URL without credentials, e.g. rtsp://192.168.1.100:554/stream",
+                    "username": "Camera username (optional — leave blank for unauthenticated streams)",
+                    "password": "Camera password",
                     "states": "Comma-separated list of visual states to detect, e.g. open,closed,partial",
                     "scan_interval": "How often to capture and analyse a frame (seconds)"
                 }

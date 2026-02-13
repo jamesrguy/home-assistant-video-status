@@ -6,6 +6,8 @@ PLATFORMS: list[str] = ["sensor"]
 
 # Configuration keys
 CONF_RTSP_URL = "rtsp_url"
+CONF_USERNAME = "username"
+CONF_PASSWORD = "password"
 CONF_INFERENCE_MODE = "inference_mode"
 CONF_STATES = "states"
 CONF_SCAN_INTERVAL = "scan_interval"

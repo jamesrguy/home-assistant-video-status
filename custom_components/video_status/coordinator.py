@@ -18,9 +18,11 @@ from .const import (
     CONF_API_KEY,
     CONF_API_MODEL,
     CONF_INFERENCE_MODE,
+    CONF_PASSWORD,
     CONF_RTSP_URL,
     CONF_SCAN_INTERVAL,
     CONF_STATES,
+    CONF_USERNAME,
     DEFAULT_API_MODEL,
     DEFAULT_SCAN_INTERVAL,
     INFERENCE_API,
@@ -29,7 +31,7 @@ from .const import (
     STORAGE_DIR,
     TRAINING_DIR,
 )
-from .frame_capture import capture_frame_sync
+from .frame_capture import build_rtsp_url, capture_frame_sync
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +41,11 @@ class VideoStatusCoordinator(DataUpdateCoordinator[dict]):
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
-        self.rtsp_url: str = entry.data[CONF_RTSP_URL]
+        self.rtsp_url: str = build_rtsp_url(
+            entry.data[CONF_RTSP_URL],
+            username=entry.data.get(CONF_USERNAME),
+            password=entry.data.get(CONF_PASSWORD),
+        )
         self.inference_mode: str = entry.data[CONF_INFERENCE_MODE]
         self.states: list[str] = [
             s.strip()
