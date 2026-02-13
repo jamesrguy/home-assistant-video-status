@@ -1,0 +1,13 @@
+{
+    "domain": "video_status",
+    "name": "Video Status",
+    "version": "1.0.0",
+    "documentation": "https://github.com/jamesrguy/home-assistant-video-status",
+    "issue_tracker": "https://github.com/jamesrguy/home-assistant-video-status/issues",
+    "codeowners": ["@jamesrguy"],
+    "dependencies": ["ffmpeg"],
+    "requirements": [],
+    "config_flow": true,
+    "integration_type": "hub",
+    "iot_class": "local_polling"
+}

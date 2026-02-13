@@ -1,0 +1,63 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Add Video Status Monitor",
+                "description": "Configure a camera to monitor for visual state changes.",
+                "data": {
+                    "name": "Name",
+                    "rtsp_url": "RTSP Stream URL",
+                    "inference_mode": "Inference Mode",
+                    "states": "States (comma-separated)",
+                    "scan_interval": "Scan Interval (seconds)"
+                },
+                "data_description": {
+                    "rtsp_url": "Full RTSP URL of the camera stream, e.g. rtsp://192.168.1.100:554/stream",
+                    "states": "Comma-separated list of visual states to detect, e.g. open,closed,partial",
+                    "scan_interval": "How often to capture and analyse a frame (seconds)"
+                }
+            },
+            "api_config": {
+                "title": "OpenRouter API Configuration",
+                "description": "Enter your OpenRouter credentials for cloud-based image analysis.",
+                "data": {
+                    "api_key": "API Key",
+                    "api_model": "Model"
+                },
+                "data_description": {
+                    "api_model": "OpenRouter model identifier, e.g. google/gemini-flash-1.5-8b"
+                }
+            }
+        },
+        "error": {
+            "invalid_rtsp_url": "Invalid RTSP URL — must start with rtsp:// or rtsps://",
+            "need_two_states": "Enter at least two comma-separated states",
+            "missing_api_key": "An API key is required for API inference mode",
+            "cannot_connect": "Unable to connect to the RTSP stream",
+            "unknown": "An unexpected error occurred"
+        },
+        "abort": {
+            "already_configured": "This camera is already configured"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Video Status Options",
+                "data": {
+                    "scan_interval": "Scan Interval (seconds)"
+                }
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "status": {
+                "name": "Status"
+            },
+            "confidence": {
+                "name": "Confidence"
+            }
+        }
+    }
+}

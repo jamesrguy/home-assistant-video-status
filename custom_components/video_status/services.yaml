@@ -1,0 +1,31 @@
+train_model:
+  name: Train Model
+  description: >-
+    Train the on-device image classifier from the training images stored
+    in the state sub-folders.
+  fields:
+    entry_id:
+      name: Config Entry ID
+      description: The ID of the Video Status config entry to train.
+      required: true
+      selector:
+        text:
+
+capture_sample:
+  name: Capture Training Sample
+  description: >-
+    Capture a single frame from the RTSP stream and save it as a labelled
+    training sample for the given state.
+  fields:
+    entry_id:
+      name: Config Entry ID
+      description: The ID of the Video Status config entry.
+      required: true
+      selector:
+        text:
+    state:
+      name: State
+      description: 'The state label for this sample (e.g. "open", "closed").'
+      required: true
+      selector:
+        text:
