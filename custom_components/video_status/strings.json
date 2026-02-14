@@ -49,7 +49,17 @@
             "init": {
                 "title": "Video Status Options",
                 "data": {
-                    "scan_interval": "Scan Interval (seconds)"
+                    "scan_interval": "Scan Interval (seconds)",
+                    "roi_x": "ROI X offset (%)",
+                    "roi_y": "ROI Y offset (%)",
+                    "roi_w": "ROI Width (%)",
+                    "roi_h": "ROI Height (%)"
+                },
+                "data_description": {
+                    "roi_x": "Left edge of the region of interest as a percentage of frame width (0 = left edge)",
+                    "roi_y": "Top edge of the region of interest as a percentage of frame height (0 = top edge)",
+                    "roi_w": "Width of the region of interest as a percentage of frame width (100 = full width)",
+                    "roi_h": "Height of the region of interest as a percentage of frame height (100 = full height)"
                 }
             }
         }
@@ -61,6 +71,24 @@
             },
             "confidence": {
                 "name": "Confidence"
+            }
+        },
+        "button": {
+            "capture_sample": {
+                "name": "Capture Sample"
+            },
+            "train_model": {
+                "name": "Train Model"
+            }
+        },
+        "camera": {
+            "last_frame": {
+                "name": "Last Frame"
+            }
+        },
+        "select": {
+            "capture_state": {
+                "name": "Capture State"
             }
         }
     }

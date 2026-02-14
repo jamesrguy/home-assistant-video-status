@@ -7,6 +7,8 @@ A custom Home Assistant integration that turns any RTSP camera into a state sens
 - **On-device inference** — histogram and structural feature classifier that runs locally with zero cloud dependencies. Needs only ~50-200ms per frame on ARM hardware.
 - **API inference** — send frames to any vision model on [OpenRouter](https://openrouter.ai) (Gemini Flash, GPT-4V, Claude, etc.) for zero-shot classification without training.
 - **RTSP authentication** — optional username/password fields, percent-encoded and injected at runtime. Credentials never appear in logs.
+- **Region of interest (ROI)** — crop the analysis to a specific area of the frame, so the classifier focuses on what matters even if the target is small or at the edge.
+- **Device page controls** — Capture Sample button, Train Model button, state selector dropdown, and a camera entity showing the last frame with the ROI box overlaid.
 - **HACS compatible** — install via the Home Assistant Community Store.
 
 ## Installation
@@ -43,12 +45,16 @@ If you chose **API** mode you will be prompted for your OpenRouter API key and m
 
 ## Entities
 
-Each configured camera creates a **device** with two sensors:
+Each configured camera creates a **device** with the following entities:
 
 | Entity | Type | Description |
 |---|---|---|
 | **Status** | `sensor` | The detected state name (e.g. `open`, `closed`). Shows `untrained` until a local model is trained. |
 | **Confidence** | `sensor` | Classification confidence as a percentage (0–100 %). |
+| **Last Frame** | `camera` | The most recently captured frame. When an ROI is configured, a green rectangle is drawn over the region. |
+| **Capture Sample** | `button` | Captures a frame from the RTSP stream and saves it as a training image for the currently selected state. |
+| **Train Model** | `button` | Trains (or re-trains) the on-device classifier from all images in the training folders. |
+| **Capture State** | `select` | Dropdown to choose which state label the next captured sample will be saved under (e.g. `open`, `closed`). |
 
 The Status sensor also exposes these **attributes**:
 
@@ -73,39 +79,40 @@ The on-device classifier learns to distinguish your configured states from examp
 
 This works well for **fixed-camera** scenarios where the states are visually distinct (different colours, shapes, or positions).
 
-### Step 1 — Find Your Config Entry ID
+### Step 1 — Configure the ROI (if needed)
 
-You need the config entry ID to call the training services. Find it at:
+If the object you're monitoring (e.g. a garage door) only occupies a small part of the camera frame, set a **Region of Interest** to crop the analysis area. This dramatically improves accuracy because the classifier's features describe the entire analysis window — a small door in a large frame gets drowned out by the static background.
 
-**Settings → Devices & Services → Video Status** → click the entry → look at the URL:
+1. Go to the device page and look at the **Last Frame** camera entity to see the full frame.
+2. Estimate where the target sits as percentages of the frame (X offset, Y offset, width, height).
+3. Go to **Settings → Devices & Services → Video Status** → click the entry → **Configure**.
+4. Set the ROI fields:
 
-```
-/config/integrations/integration/video_status#/entry/<ENTRY_ID>
-```
+| Field | Meaning | Example |
+|---|---|---|
+| **ROI X offset (%)** | How far from the left edge | `70` = starts 70% from the left |
+| **ROI Y offset (%)** | How far from the top edge | `20` = starts 20% from the top |
+| **ROI Width (%)** | Width of the box | `25` = 25% of frame width |
+| **ROI Height (%)** | Height of the box | `60` = 60% of frame height |
 
-Or read it from the Status sensor's attributes in **Developer Tools → States** — look for any `sensor.video_status_*` entity.
+After saving, the **Last Frame** camera entity will show a green rectangle overlaid on the full frame so you can visually verify the placement and adjust if needed.
 
-You can also find it via the CLI:
-
-```bash
-cat config/.storage/core.config_entries | python3 -c "
-import json, sys
-entries = json.load(sys.stdin)['data']['entries']
-for e in entries:
-    if e['domain'] == 'video_status':
-        print(f\"{e['title']}: {e['entry_id']}\")
-"
-```
+Leave all values at their defaults (0, 0, 100, 100) for full-frame analysis.
 
 ### Step 2 — Collect Training Images
 
 You have two options:
 
-#### Option A — Capture samples via the service (recommended)
+#### Option A — Use the device page buttons (recommended)
 
-Use the `video_status.capture_sample` service to grab a live frame from the camera and save it directly into the right training folder.
+1. Set your garage door / gate / blinds to the target state.
+2. On the device page, use the **Capture State** dropdown to select the state (e.g. `open`).
+3. Press the **Capture Sample** button.
+4. Repeat several times. Aim for **10–20 samples per state** across different times of day.
 
-Go to **Developer Tools → Services** and call:
+The captured images are automatically cropped to the configured ROI so they match what the classifier will see at inference time.
+
+You can also use the services directly in **Developer Tools → Services**:
 
 ```yaml
 service: video_status.capture_sample
@@ -114,11 +121,9 @@ data:
   state: "open"
 ```
 
-Repeat several times for each state. Aim for **10–20 images per state**, captured at different times of day to cover lighting variation.
+Find your entry ID in the URL when viewing the integration entry, or in the Status sensor's attributes.
 
-**Tip:** Set your garage door / gate / blinds to the target state, then call the service a few times across morning, midday, and evening.
-
-You can also automate bulk capture with a script:
+You can automate bulk capture with a script:
 
 ```yaml
 # configuration.yaml
@@ -159,7 +164,7 @@ Copy or move `.jpg`, `.jpeg`, `.png`, `.bmp`, or `.webp` images into the appropr
 
 ### Step 3 — Train the Model
 
-Call the `video_status.train_model` service:
+Press the **Train Model** button on the device page, or call the service:
 
 ```yaml
 service: video_status.train_model
@@ -196,10 +201,11 @@ After training:
 
 **If accuracy is poor:**
 
+- **Set or tighten the ROI** — if the target is small in the frame, crop to it. This is the single biggest accuracy improvement.
 - Add more images (especially for the states that get confused).
 - Make sure images cover different lighting conditions.
 - Ensure the camera angle hasn't shifted between training and live use.
-- Re-train by calling `video_status.train_model` again — it replaces the previous model.
+- Re-train by pressing the **Train Model** button again — it replaces the previous model.
 
 ### Training Tips
 

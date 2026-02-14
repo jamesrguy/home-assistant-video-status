@@ -29,6 +29,33 @@ SOFTMAX_TEMPERATURE = 10.0
 IMAGE_EXTENSIONS = frozenset((".jpg", ".jpeg", ".png", ".bmp", ".webp"))
 
 
+def crop_roi(
+    image: Image.Image,
+    roi_x: int = 0,
+    roi_y: int = 0,
+    roi_w: int = 100,
+    roi_h: int = 100,
+) -> Image.Image:
+    """Crop an image to a region of interest given as percentages (0-100).
+
+    A full-frame ROI (0, 0, 100, 100) returns the image unchanged.
+    """
+    if (roi_x, roi_y, roi_w, roi_h) == (0, 0, 100, 100):
+        return image
+
+    w, h = image.size
+    left = int(w * roi_x / 100)
+    upper = int(h * roi_y / 100)
+    right = int(w * min(roi_x + roi_w, 100) / 100)
+    lower = int(h * min(roi_y + roi_h, 100) / 100)
+
+    # Guard against degenerate boxes
+    right = max(right, left + 1)
+    lower = max(lower, upper + 1)
+
+    return image.crop((left, upper, right, lower))
+
+
 def extract_features(image: Image.Image) -> np.ndarray:
     """Extract a compact feature vector from an image.
 

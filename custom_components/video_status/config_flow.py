@@ -15,11 +15,19 @@ from .const import (
     CONF_API_MODEL,
     CONF_INFERENCE_MODE,
     CONF_PASSWORD,
+    CONF_ROI_H,
+    CONF_ROI_W,
+    CONF_ROI_X,
+    CONF_ROI_Y,
     CONF_RTSP_URL,
     CONF_SCAN_INTERVAL,
     CONF_STATES,
     CONF_USERNAME,
     DEFAULT_API_MODEL,
+    DEFAULT_ROI_H,
+    DEFAULT_ROI_W,
+    DEFAULT_ROI_X,
+    DEFAULT_ROI_Y,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STATES,
     DOMAIN,
@@ -134,7 +142,7 @@ class VideoStatusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class VideoStatusOptionsFlow(config_entries.OptionsFlow):
-    """Allow the user to adjust scan_interval after setup."""
+    """Allow the user to adjust scan_interval and ROI after setup."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         self.config_entry = config_entry
@@ -145,6 +153,7 @@ class VideoStatusOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
+        opts = self.config_entry.options
         schema = vol.Schema(
             {
                 vol.Required(
@@ -153,6 +162,22 @@ class VideoStatusOptionsFlow(config_entries.OptionsFlow):
                         CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
                     ),
                 ): vol.All(int, vol.Range(min=5, max=3600)),
+                vol.Required(
+                    CONF_ROI_X,
+                    default=opts.get(CONF_ROI_X, DEFAULT_ROI_X),
+                ): vol.All(int, vol.Range(min=0, max=99)),
+                vol.Required(
+                    CONF_ROI_Y,
+                    default=opts.get(CONF_ROI_Y, DEFAULT_ROI_Y),
+                ): vol.All(int, vol.Range(min=0, max=99)),
+                vol.Required(
+                    CONF_ROI_W,
+                    default=opts.get(CONF_ROI_W, DEFAULT_ROI_W),
+                ): vol.All(int, vol.Range(min=1, max=100)),
+                vol.Required(
+                    CONF_ROI_H,
+                    default=opts.get(CONF_ROI_H, DEFAULT_ROI_H),
+                ): vol.All(int, vol.Range(min=1, max=100)),
             }
         )
 
