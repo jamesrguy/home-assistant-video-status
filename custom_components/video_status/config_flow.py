@@ -138,14 +138,11 @@ class VideoStatusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> VideoStatusOptionsFlow:
-        return VideoStatusOptionsFlow(config_entry)
+        return VideoStatusOptionsFlow()
 
 
 class VideoStatusOptionsFlow(config_entries.OptionsFlow):
     """Allow the user to adjust scan_interval and ROI after setup."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
