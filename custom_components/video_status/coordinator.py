@@ -153,6 +153,9 @@ class VideoStatusCoordinator(DataUpdateCoordinator[dict]):
                     outline="lime",
                 )
 
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+
         buf = io.BytesIO()
         img.save(buf, format="JPEG", quality=85)
         return buf.getvalue()

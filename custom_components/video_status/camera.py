@@ -6,6 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import VideoStatusCoordinator
@@ -21,7 +22,7 @@ async def async_setup_entry(
     async_add_entities([VideoStatusCamera(coordinator, entry)])
 
 
-class VideoStatusCamera(Camera):
+class VideoStatusCamera(CoordinatorEntity[VideoStatusCoordinator], Camera):
     """Shows the last captured frame with the ROI rectangle overlaid."""
 
     _attr_has_entity_name = True
@@ -31,8 +32,8 @@ class VideoStatusCamera(Camera):
     def __init__(
         self, coordinator: VideoStatusCoordinator, entry: ConfigEntry
     ) -> None:
-        super().__init__()
-        self._coordinator = coordinator
+        CoordinatorEntity.__init__(self, coordinator)
+        Camera.__init__(self)
         self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_camera"
 
@@ -51,9 +52,9 @@ class VideoStatusCamera(Camera):
     ) -> bytes | None:
         """Return the most recent frame with the ROI box drawn on it."""
         return await self.hass.async_add_executor_job(
-            self._coordinator.get_annotated_frame_bytes
+            self.coordinator.get_annotated_frame_bytes
         )
 
     @property
     def is_on(self) -> bool:
-        return self._coordinator.last_frame is not None
+        return self.coordinator.last_frame is not None
